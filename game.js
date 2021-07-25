@@ -10,6 +10,8 @@ const screenWidth = window.screen.width
 const canvasPosition = screenWidth / 2 - width / 2
 const isMobile = window.matchMedia('(max-width: 600px)')
 
+const gameOverDiv = document.createElement('div')
+
 //paddle code
 const paddleHeight = 10
 const paddleWidth = 50
@@ -45,8 +47,8 @@ if (isMobile.matches) {
 let playerScore = 0
 let computerScore = 0
 const winningScore = 7
-let isGameOver = true
 let isNewGame = true
+let isGameOver = true
 
 
 //generating canvas
@@ -172,7 +174,35 @@ const ballBoundaries = () => {
     }
 }
 
+const showGameOverMsg = (winner) => {
+    //hide canvas
+    canvas.hidden = true
 
+    gameOverDiv.textContent = ''
+   
+
+    const title = document.createElement('h1')
+    title.textContent = `${winner} Wins!!!`
+
+    const playAgainBtn = document.createElement('button')
+    playAgainBtn.setAttribute('onclick', 'startGame()')
+    playAgainBtn.textContent = 'Play Again'
+
+    gameOverDiv.append(title, playAgainBtn)
+    body.appendChild(gameOverDiv)
+
+
+}
+
+const gameOver = () => {
+    if(playerScore === winningScore || botScore === winningScore) {
+        isGameOver = true
+
+        const winner = playerScore === winningScore ? 'Player' : 'Bot'
+        showGameOverMsg(winner)
+    
+    }
+}   
 
 
 const animate = () => {
@@ -180,11 +210,21 @@ const animate = () => {
     ballMove()
     ballBoundaries()
     botAI()
-    window.requestAnimationFrame(animate)
+    gameOver()
+    if (!isGameOver){
+        window.requestAnimationFrame(animate)
+
+    }
 
 }
 
 const startGame = () => {
+    if (isGameOver && !isNewGame) {
+        body.removeChild(gameOverDiv)
+        canvas.hidden = false
+    }
+    isGameOver = false
+    isNewGame = false
     playerScore = 0
     botScore = 0
     ballReset()
